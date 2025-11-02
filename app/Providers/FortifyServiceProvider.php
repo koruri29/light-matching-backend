@@ -14,6 +14,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Fortify;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
+use Laravel\Fortify\Contracts\LogoutResponse;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -48,5 +49,19 @@ class FortifyServiceProvider extends ServiceProvider
         // Fortifyのviewを無効化
         Fortify::loginView(fn () => abort(404));
         Fortify::registerView(fn () => abort(404));
+        $this->app->singleton(LogoutResponse::class, function () {
+            return new class implements LogoutResponse {
+                public function toResponse($request)
+                {
+                    if ($request->user() && $request->user->currentAccessToken()) {
+                        $request->user()->currentAccessToken()->delete();
+                    }
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'ログアウトしました'
+                    ])->withoutCookie('access_token');
+                }
+            };
+        });
     }
 }
