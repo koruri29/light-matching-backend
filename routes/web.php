@@ -30,3 +30,10 @@ Route::middleware([
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/jobs', [JobController::class, 'getJobSummary']);
 });
+
+Route::post('/force-logout', function () {
+    return response()->json(['message' => 'force logout'])
+        ->withoutCookie('access_token')
+        ->withoutCookie('laravel_session')
+        ->withoutCookie('XSRF-TOKEN');
+});

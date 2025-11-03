@@ -9,6 +9,7 @@ use App\Actions\Fortify\UpdateUserProfileInformation;
 use App\Http\Responses\LoginResponse;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -53,13 +54,24 @@ class FortifyServiceProvider extends ServiceProvider
             return new class implements LogoutResponse {
                 public function toResponse($request)
                 {
-                    if ($request->user() && $request->user->currentAccessToken()) {
-                        $request->user()->currentAccessToken()->delete();
+                    // APIトークン削除
+                    if ($request->user() && method_exists($request->user(), 'currentAccessToken')) {
+                        $request->user()->currentAccessToken()?->delete();
                     }
+
+                    // Laravelセッション破棄
+                    Auth::guard('web')->logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+
+                    // クッキーをまとめて削除
                     return response()->json([
                         'success' => true,
                         'message' => 'ログアウトしました'
-                    ])->withoutCookie('access_token');
+                    ])
+                    ->cookie(cookie()->forget('laravel_session', '/', config('session.domain')))
+                    ->cookie(cookie()->forget('XSRF-TOKEN'))
+                    ->cookie(cookie()->forget('access_token'));
                 }
             };
         });
