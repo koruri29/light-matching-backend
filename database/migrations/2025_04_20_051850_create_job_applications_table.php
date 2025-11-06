@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\JobApplicationStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('job_post_id')->constrained('job_posts')->onDelete('cascade');
             $table->foreignId('worker_id')->constrained('worker_profiles');
-            $table->enum('status', ['applied', 'accepted', 'rejected']);
+            $table->enum('status', array_column(JobApplicationStatus::cases(), 'value'));
             $table->text('message')->nullable();
             $table->timestamps();
         });

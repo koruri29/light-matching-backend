@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ContactMethods;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,11 +20,10 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->text('description')->nullable();
             $table->string('payment', 200)->nullable();
-            $table->enum('contact_method', ['email', 'line'])->default('email');
+            $table->enum('contact_method', array_column(ContactMethods::cases(), 'value'))->default('email');
             $table->boolean('is_public')->default(true);
             $table->boolean('is_closed')->default(false);
             $table->timestamp('deadline')->nullable();
-            $table->integer('number_of_position')->nullable();
             $table->timestamps();
         });
     }

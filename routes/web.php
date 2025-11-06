@@ -27,8 +27,13 @@ Route::middleware([
     Route::post('/post', [JobController::class, 'store']);
 });
 
-Route::middleware(['auth:sanctum', 'verified'])->group(function () {
-    Route::get('/jobs', [JobController::class, 'getJobSummary']);
+Route::middleware([
+    HandleCors::class,
+    'web',
+    'auth:sanctum',
+])->group(function () {
+    Route::get('/job-counts', [JobController::class, 'getJobPostCountsByDate']);
+    Route::get('/jobs', [JobController::class, 'getJobs']);
 });
 
 Route::post('/force-logout', function () {

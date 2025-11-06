@@ -13,12 +13,21 @@ class JobPostRepository implements JobPostRepositoryInterface
         return JobPost::Create($data);
     }
 
+    /** 仕事数カウントを配列風(日付がキー、件数が値）にして返す */
     public function getJobCountsByDate(): Collection
     {
         return DB::table('job_post_dates')
             ->select('work_date', DB::raw('count(*) as total'))
             ->groupBy('work_date')
             ->orderBy('work_date', 'desc')
-            ->get();
+            ->pluck('total', 'work_date');
+    }
+
+    public function getPaginatedJobs($perPage = 20): Collection
+    {
+        return JobPost::with(['jobTags', 'jobPostDates'])
+                    ->withMax('jobPostDates', 'work_date') // 各求人に紐づく最大日付を取る
+                    ->orderBy('job_post_date_max_work_date', 'desc') // その最大日付でソート
+                    ->paginate($perPage);
     }
 }

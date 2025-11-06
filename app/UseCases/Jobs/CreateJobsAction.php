@@ -2,6 +2,7 @@
 
 namespace App\UseCases\Jobs;
 
+use App\Models\JobTag;
 use App\Repositories\JobPost\JobPostRepositoryInterface;
 use App\Repositories\JobPostDate\JobPostDateRepositoryInterface;
 use App\Repositories\JobPostTags\JobPostTagsRepositoryInterface;
@@ -38,55 +39,47 @@ class CreateJobsAction
         $tags = $data['tags'];
         $dates = $data['dates'];
 
-        // トランザクション
-        $result = DB::transaction(function () use ($jobPost, $tags, $dates) {
-            // 募集情報の登録
-            try {
+        try {
+            $result = DB::transaction(function () use ($jobPost, $tags, $dates) {
+                // 募集情報
                 $jobPostResult = $this->postRepository->create($jobPost);
-            } catch (Exception $e) {
-                Log::error('募集の登録に失敗しました。エラー', ['error' => $e->getMessage()]);
-                return [
-                    'success' => false,
-                    'error' => '募集の登録に失敗しました。エラー: ' . $e,
-                ];
-            }
 
-            // タグの登録
-            try {
-                foreach($tags as $key => $value) {
+                // タグ
+                foreach ($tags as $name => $value) {
                     if ($value) {
-                        $tag = ['tag' => $key, 'job_post_id' => $jobPostResult->id];
-                        $this->tagRepository->create($tag);
+                        $tag = JobTag::where('name', $name)->first();
+                        if ($tag) {
+                            $this->tagRepository->create([
+                                'job_post_id' => $jobPostResult->id,
+                                'job_tag_id'  => $tag->id,
+                            ]);
+                        }
                     }
                 }
-            } catch (Exception $e) {
-                Log::error('募集タグの登録に失敗しました。エラー', ['error' => $e->getMessage()]);
-                return [
-                    'success' => false,
-                    'error' => '募集タグの登録に失敗しました。エラー: ' . $e,
-                ];
-            }
 
-            // 日付の登録
-            try {
-               foreach($dates as $date) {
+                // 日付
+                foreach ($dates as $date) {
                     $date['job_post_id'] = $jobPostResult->id;
                     $this->dateRepository->create($date);
                 }
-            } catch (Exception $e) {
-                Log::error('募集日付の登録に失敗しました。エラー', ['error' => $e->getMessage()]);
-                return [
-                    'success' => false,
-                    'error' => '募集日付の登録に失敗しました。エラー: ' . $e,
-                ];
-            }
+
+                return $jobPostResult->id;
+            });
 
             return [
                 'success' => true,
-                'id' => $jobPostResult->id,
+                'id' => $result,
             ];
-        });
+        } catch (Exception $e) {
+            Log::error('CreateJobsAction failed', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
 
-        return $result;
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
     }
 }

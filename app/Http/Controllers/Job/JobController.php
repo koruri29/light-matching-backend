@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Job;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreJobPostRequest;
-use App\Http\Resources\JobSummaryResource;
+use App\Http\Resources\JobPostsViewCollection;
 use App\UseCases\Jobs\CreateJobsAction;
-use App\UseCases\Jobs\GetJobSummaryAction;
-use Illuminate\Http\JsonResponse;
+use App\UseCases\Jobs\GetJobPostCountsAction;
+use App\UseCases\Jobs\GetJobPostsAction;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Collection;
 
 class JobController extends Controller
 {
@@ -23,9 +24,15 @@ class JobController extends Controller
         ], 200);
     }
 
-    public function getJobSummary(Request $request, GetJobSummaryAction $getSummary): JsonResource
+    public function getJobPostCountByDate(GetJobPostCountsAction $getCounts): Collection
     {
-        $jobSummary = $getSummary($request);
-        return new JobSummaryResource($jobSummary);
+        return $getCounts();
+    }
+
+    public function getJobSummary(Request $request, GetJobPostsAction $getJobPosts): JsonResponse
+    {
+        $paginator = $getJobPosts($request->perPage || 20);
+        $paginator->setCollection(new JobPostsViewCollection($paginator->getCollection()));
+        return response()->json($paginator);
     }
 }

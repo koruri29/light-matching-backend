@@ -9,12 +9,13 @@ class JobTag extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'id',
         'name',
         'sort_order',
     ];
 
     public function jobPosts()
     {
-        return $this->belongsToMany(JobPost::class);
+        return $this->belongsToMany(JobPost::class, 'job_post_tag');
     }
 }

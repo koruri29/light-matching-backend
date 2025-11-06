@@ -32,7 +32,6 @@ class StoreJobPostRequest extends FormRequest
                 'job_post.is_public' => ['boolean'],
                 'job_post.is_closed' => ['boolean'],
                 'job_post.deadline' => ['nullable', 'date'],
-                'job_post.number_of_position' => ['nullable', 'integer', 'min:1'],
                 // tags
                 'tags' => ['required', 'array'],
                 'tags.pin' => ['boolean'],
@@ -42,6 +41,7 @@ class StoreJobPostRequest extends FormRequest
                 // dates
                 'dates' => ['required', 'array', 'min:1'],
                 'dates.*.work_date' => ['required', 'date'],
+                'dates.*.number_of_position' => ['integer', 'min:1'],
                 'dates.*.start_time' => ['nullable', 'date_format:H:i'],
                 'dates.*.end_time' => ['nullable', 'date_format:H:i'],
             ];

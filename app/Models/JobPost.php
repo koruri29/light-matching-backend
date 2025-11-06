@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Container\Attributes\Tag;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -26,7 +25,7 @@ class JobPost extends Model
 
     public function jobTags()
     {
-        return $this->belongsToMany(Tag::class);
+        return $this->belongsToMany(JobTag::class, 'job_post_tag');
     }
 
     public function jobPostDates()

@@ -9,6 +9,7 @@ class JobPostDate extends Model
     protected $fillable = [
         'job_post_id',
         'work_date',
+        'number_of_position',
     ];
 
     public function jobPost()

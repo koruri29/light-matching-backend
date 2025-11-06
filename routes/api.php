@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Job\JobController;
 use App\Http\Controllers\Job\JobPostController;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -59,3 +60,10 @@ Route::get('/reset-password/{token}', function ($token) {
 Route::middleware(['web', 'auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
+
+
+// 開発中のみON
+// プリフライトを受け付ける
+Route::options('{any}', function () {
+    return response()->noContent();
+})->where('any', '.*');

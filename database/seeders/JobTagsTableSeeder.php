@@ -9,7 +9,7 @@ use Illuminate\Database\Seeder;
 class JobTagsTableSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Run the database <seeds class=""></seeds>
      */
     public function run(): void
     {
@@ -20,8 +20,6 @@ class JobTagsTableSeeder extends Seeder
             ['name' => 'post_stay', 'kana_name' => '後泊の可能性あり', 'sort_order' => 4],
         ];
 
-        foreach ($tags as $tag) {
-            JobTag::create($tag);
-        }
+        JobTag::insert($tags);
     }
 }

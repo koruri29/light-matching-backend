@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('job_post_id')->constrained('job_posts')->onDelete('cascade');
             $table->date('work_date');
+            $table->integer('number_of_position');
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
             $table->timestamps();
