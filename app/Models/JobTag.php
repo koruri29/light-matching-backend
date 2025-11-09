@@ -14,6 +14,9 @@ class JobTag extends Model
         'sort_order',
     ];
 
+    protected $hidden = ['pivot', 'created_at', 'updated_at'];
+
+
     public function jobPosts()
     {
         return $this->belongsToMany(JobPost::class, 'job_post_tag');

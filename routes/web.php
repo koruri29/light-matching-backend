@@ -35,10 +35,3 @@ Route::middleware([
     Route::get('/job-counts', [JobController::class, 'getJobPostCountsByDate']);
     Route::get('/jobs', [JobController::class, 'getJobs']);
 });
-
-Route::post('/force-logout', function () {
-    return response()->json(['message' => 'force logout'])
-        ->withoutCookie('access_token')
-        ->withoutCookie('laravel_session')
-        ->withoutCookie('XSRF-TOKEN');
-});

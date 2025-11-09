@@ -67,3 +67,12 @@ Route::middleware(['web', 'auth:sanctum'])->get('/user', function (Request $requ
 Route::options('{any}', function () {
     return response()->noContent();
 })->where('any', '.*');
+
+
+// 強制ログアウト
+Route::post('/force-logout', function () {
+    return response()->json(['message' => 'force logout'])
+        ->withoutCookie('access_token')
+        ->withoutCookie('laravel_session')
+        ->withoutCookie('XSRF-TOKEN');
+});

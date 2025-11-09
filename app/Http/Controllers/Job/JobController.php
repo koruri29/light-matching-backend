@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Job;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreJobPostRequest;
-use App\Http\Resources\JobPostsViewCollection;
+use App\Http\Resources\JobPostViewResource;
 use App\UseCases\Jobs\CreateJobsAction;
 use App\UseCases\Jobs\GetJobPostCountsAction;
 use App\UseCases\Jobs\GetJobPostsAction;
@@ -24,15 +24,17 @@ class JobController extends Controller
         ], 200);
     }
 
-    public function getJobPostCountByDate(GetJobPostCountsAction $getCounts): Collection
+    public function getJobPostCountsByDate(GetJobPostCountsAction $getCounts): Collection
     {
         return $getCounts();
     }
 
-    public function getJobSummary(Request $request, GetJobPostsAction $getJobPosts): JsonResponse
+    public function getJobs(Request $request, GetJobPostsAction $getJobPosts): JsonResponse
     {
         $paginator = $getJobPosts($request->perPage || 20);
-        $paginator->setCollection(new JobPostsViewCollection($paginator->getCollection()));
+        // $paginator->setCollection(
+        //     $paginator->getCollection()->flatMap(fn ($job) => JobPostViewResource::make($job)->toArray(request()))->values()
+        // );
         return response()->json($paginator);
     }
 }

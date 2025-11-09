@@ -3,6 +3,7 @@
 namespace App\Repositories\JobPost;
 
 use App\Models\JobPost;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -23,11 +24,11 @@ class JobPostRepository implements JobPostRepositoryInterface
             ->pluck('total', 'work_date');
     }
 
-    public function getPaginatedJobs($perPage = 20): Collection
+    public function getPaginatedJobs($perPage = 20): LengthAwarePaginator
     {
         return JobPost::with(['jobTags', 'jobPostDates'])
                     ->withMax('jobPostDates', 'work_date') // 各求人に紐づく最大日付を取る
-                    ->orderBy('job_post_date_max_work_date', 'desc') // その最大日付でソート
+                    ->orderBy('job_post_dates_max_work_date', 'desc') // その最大日付でソート
                     ->paginate($perPage);
     }
 }
