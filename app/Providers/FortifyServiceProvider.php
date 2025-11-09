@@ -7,15 +7,15 @@ use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
 use App\Http\Responses\LoginResponse;
+use App\Responses\LogoutResponse;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Fortify;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
-use Laravel\Fortify\Contracts\LogoutResponse;
+use Laravel\Fortify\Contracts\LogoutResponse as LogoutResponseContract;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -50,30 +50,6 @@ class FortifyServiceProvider extends ServiceProvider
         // Fortifyのviewを無効化
         Fortify::loginView(fn () => abort(404));
         Fortify::registerView(fn () => abort(404));
-        $this->app->singleton(LogoutResponse::class, function () {
-            return new class implements LogoutResponse {
-                public function toResponse($request)
-                {
-                    // APIトークン削除
-                    if ($request->user() && method_exists($request->user(), 'currentAccessToken')) {
-                        $request->user()->currentAccessToken()?->delete();
-                    }
-
-                    // Laravelセッション破棄
-                    Auth::guard('web')->logout();
-                    $request->session()->invalidate();
-                    $request->session()->regenerateToken();
-
-                    // クッキーをまとめて削除
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'ログアウトしました'
-                    ])
-                    ->cookie(cookie()->forget('laravel_session', '/', config('session.domain')))
-                    ->cookie(cookie()->forget('XSRF-TOKEN'))
-                    ->cookie(cookie()->forget('access_token'));
-                }
-            };
-        });
+        $this->app->singleton(LogoutResponseContract::class, LogoutResponse::class);
     }
 }
