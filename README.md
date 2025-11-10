@@ -1,61 +1,151 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 💡 Light Matching Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Laravel製のAPIサーバーです。\
+照明スタッフ向けマッチングアプリのバックエンドとして、求人情報・応募・ユーザー認証などを管理します。\
+フロントエンド（Next.js）からは REST API 経由で通信します。
 
-## About Laravel
+------------------------------------------------------------------------
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+# 🚀 環境構成
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| 項目 | 内容 |
+|------|------|
+| フレームワーク | Laravel 10.x |
+| PHP | 8.2以上 |
+| DB | MySQL / MariaDB |
+| 認証 | Laravel Sanctum |
+| API仕様 | JSONベース |
+| デプロイ | AWS / Vercel (フロント別) |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-## Learning Laravel
+------------------------------------------------------------------------
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 📦 セットアップ手順
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 1. リポジトリのクローン
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+``` bash
+git clone https://github.com/koruri29/light-matching-backend.git
+cd light-matching-backend
+```
 
-## Laravel Sponsors
+### 2. 環境変数の設定
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+`.env.example` をコピーして `.env` を作成します。
 
-### Premium Partners
+``` bash
+cp .env.example .env
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development/)**
-- **[Active Logic](https://activelogic.com)**
 
-## Contributing
+### 3. 依存パッケージのインストール
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+``` bash
+composer install
+```
 
-## Code of Conduct
+### 4. アプリキーの生成
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+``` bash
+php artisan key:generate
+```
 
-## Security Vulnerabilities
+### 5. マイグレーション＆シーディング
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+``` bash
+php artisan migrate --seed
+```
 
-## License
+これにより、求人タグやテスト用ユーザーが登録されます。
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 6. サーバーの起動
+
+``` bash
+php artisan serve
+```
+
+APIサーバーが `http://localhost:8000` で起動します。
+
+------------------------------------------------------------------------
+
+## 🧩 主なディレクトリ構成
+
+    app/
+     ├── Actions/            # ビジネスロジック (UseCase層)
+     ├── Http/
+     │   ├── Controllers/    # APIエンドポイント
+     │   ├── Middleware/     # CORS・認証関連
+     │   └── Resources/      # APIレスポンス整形
+     ├── Models/             # Eloquentモデル
+     ├── Repositories/       # DBアクセス層
+     └── Providers/          # サービス登録
+
+    database/
+     ├── migrations/         # テーブル定義
+     └── seeders/            # 初期データ投入
+
+    routes/
+     ├── api.php             # 認証付きAPI
+     └── web.php             # 認証不要API
+
+------------------------------------------------------------------------
+
+## 🔐 認証仕様
+
+-   **Laravel Sanctum** を利用したトークンベース認証
+-   フロントエンドは `axios` で `withCredentials: true` を指定
+-   ログイン後、`access_token` Cookie が発行される
+
+------------------------------------------------------------------------
+
+## 📚 代表的なAPIエンドポイント
+
+| メソッド | パス | 機能 | 認証 |
+|----------|------|------|------|
+| `POST` | `/login` | ログイン | ❌ |
+| `POST` | `/logout` | ログアウト | ✅ |
+| `GET` | `/jobs` | 求人一覧（ページネーション対応） | ✅ |
+| `GET` | `/jobs/{id}` | 求人詳細（未実装） | ✅ |
+| `POST` | `/post` | 応募送信 | ✅ |
+| `POST` | `/api/force-logout` | 強制ログアウト | ❌ |
+
+------------------------------------------------------------------------
+
+## 🗃️ モデル関連
+
+| モデル | 概要 | リレーション |
+|--------|------|---------------|
+| `JobPost` | 求人情報 | `hasMany(JobPostDate)`, `belongsToMany(JobTag)` |
+| `JobPostDate` | 求人ごとの日付情報 | `belongsTo(JobPost)` |
+| `JobTag` | タグマスタ | `belongsToMany(JobPost)` |
+| `User` | 利用者 | `hasMany(Application)` |
+
+------------------------------------------------------------------------
+
+## 🧠 実装のポイント
+
+-   `App\UseCases` 層でビジネスロジックを分離（Controllerは薄く保つ）
+-   `App\Repositories` 層でEloquentクエリを管理（再利用性向上）
+-   `ResourceCollection` を使用してAPIレスポンスを整形
+-   ページネーションには `LengthAwarePaginator` を使用
+-   タグは `belongsToMany` により中間テーブル `job_post_tag` で紐付け
+
+------------------------------------------------------------------------
+
+## 🧪 テスト（未実装）
+
+``` bash
+php artisan test
+```
+
+Featureテスト・Unitテストをそれぞれ `/tests/Feature` と `/tests/Unit`
+に配置。
+
+------------------------------------------------------------------------
+
+## ☁️ デプロイメモ（AWS想定）
+
+-   **API**: ECS / EC2 / Lambda など
+-   **DB**: RDS (MySQL)
+-   **Storage**: S3
+-   `.env` で `APP_ENV=production` に変更し、`APP_DEBUG=false` を設定
