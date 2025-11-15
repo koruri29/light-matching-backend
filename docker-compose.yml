@@ -1,0 +1,42 @@
+version: '3.9'
+
+services:
+  # laravel-db:
+  #   image: postgres:15
+  #   container_name: laravel-db
+  #   environment:
+  #     POSTGRES_DB: laravel
+  #     POSTGRES_USER: laravel
+  #     POSTGRES_PASSWORD: laravelpass
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U laravel"]
+  #     interval: 5s
+  #     timeout: 5s
+  #     retries: 20
+
+  laravel-app:
+    build:
+      context: ./
+    container_name: laravel-app
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: laravel-db
+      DB_PORT: 5432
+      DB_DATABASE: laravel
+      DB_USERNAME: laravel
+      DB_PASSWORD: laravelpass
+    # depends_on:
+    #   laravel-db:
+    #     condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www/html
+    # command: ["./docker/scripts/init.sh"]
+
+volumes:
+  pgdata:
