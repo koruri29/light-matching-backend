@@ -19,6 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // 🔵 最優先でCORSを通す
         $middleware->prepend(HandleCors::class);
 
+        $middleware->trustProxies(at: '*');
+
         // 🔒 Sanctumのstateful認証
         $middleware->statefulApi();
 

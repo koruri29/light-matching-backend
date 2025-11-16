@@ -55,6 +55,7 @@ class AuthController extends Controller
             'success' => true,
             'message' => 'ログイン成功',
             'user' => $user,
+            'access_token' => $token,
         ], 200)
             ->cookie(
                 'access_token',                // クッキー名
